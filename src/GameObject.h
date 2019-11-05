@@ -12,6 +12,7 @@ enum GameObjectType {
 	PLANET,
 	MINE,
 	TILE,
+	BALL,
 	NUM_OF_TYPES
 };
 
@@ -41,9 +42,11 @@ public:
 
 	// getters for common variables
 	glm::vec2 getPosition();
+	glm::vec2 getInitialPosition();
 	glm::vec2 getRotation();
 	glm::vec2 getScale();
 	glm::vec2 getVelocity();
+	glm::vec2 getInitialVelocity();
 	glm::vec2 getAcceleration();
 	int getWidth();
 	int getHeight();
@@ -53,9 +56,11 @@ public:
 
 	// setters for common variables
 	void setPosition(glm::vec2 newPosition);
+	void setInitialPosition(glm::vec2 newPosition);
 	void setWidth(int newWidth);
 	void setHeight(int newHeight);
 	void setVelocity(glm::vec2 newVelocity);
+	void setInitialVelocity(glm::vec2 newVelocity);
 	void setIsColliding(bool collision);
 	void setType(GameObjectType newType);
 	void setState(State newState);
@@ -64,11 +69,13 @@ public:
 private:
 	// transform variables
 	glm::vec2 m_position;
+	glm::vec2 m_initialPosition;
 	glm::vec2 m_rotation;
 	glm::vec2 m_scale;
 
 	// movement variables
 	glm::vec2 m_velocity;
+	glm::vec2 m_initialVelocity;
 	glm::vec2 m_acceleration;
 
 	// size variables

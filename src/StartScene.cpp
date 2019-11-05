@@ -17,7 +17,8 @@ StartScene::~StartScene()
 
 void StartScene::draw()
 {
-	m_pShip->draw();
+	//m_pShip->draw();
+	m_pBall->draw();
 
 	// ImGui Rendering section - DO NOT MOVE OR DELETE
 	if (m_displayUI)
@@ -32,6 +33,19 @@ void StartScene::update()
 {
 	if (m_isGravityEnabled)
 	{
+		m_pBall->setAcceleration(glm::vec2(0.f, m_gravity));
+	}
+	else
+	{
+		m_pBall->setAcceleration(glm::vec2(0.f, 0.f));
+	}
+
+	if (m_bSimulationStart)
+	{
+		m_pBall->update();
+
+		m_Atime += m_time;
+
 		m_move();
 	}
 
@@ -47,7 +61,8 @@ void StartScene::clean()
 	/*delete m_pStartLabel;
 	delete m_pInstructionsLabel;*/
 
-	delete m_pShip;
+	//delete m_pShip;
+	delete m_pBall;
 
 	removeAllChildren();
 }
@@ -170,9 +185,14 @@ void StartScene::start()
 	m_pInstructionsLabel->setParent(this);
 	addChild(m_pInstructionsLabel)*/
 
-	m_pShip = new Ship();
+	/*m_pShip = new Ship();
 	m_pShip->setPosition(glm::vec2(400.0f, 300.0f));
 	addChild(m_pShip);
+*/
+	m_pBall = new Ball();
+	m_pBall->setPosition(glm::vec2(50.f, 550.f));
+	m_pBall->setInitialPosition(m_pBall->getPosition());
+	addChild(m_pBall);
 }
 
 void StartScene::m_ImGuiKeyMap()
@@ -306,18 +326,48 @@ void StartScene::m_updateUI()
 
 	ImGui::SameLine();
 
+	if (ImGui::Button("Start Simulation"))
+	{
+		m_bSimulationStart = (m_bSimulationStart) ? false : true;
+
+		float fInitialVelocityX = m_kickForce * cos(m_angle * Deg2Rad);
+		float fInitialVelocityY = -m_kickForce * sin(m_angle * Deg2Rad);
+
+		m_pBall->setInitialVelocity(glm::vec2(fInitialVelocityX, fInitialVelocityY));
+	}
+
+	ImGui::SameLine();
+
 	if (ImGui::Button("Reset All"))
 	{
-		m_isGravityEnabled = false;
-		m_pShip->setPosition(glm::vec2(400.0f, 300.f));
-		m_gravity = 9.8f;
+		
+		//m_pShip->setPosition(glm::vec2(400.0f, 300.f));
+		
 		m_PPM = 5.0f;
-		m_Atime = 0.016667f;
-		m_angle = 45.0f;
-		m_velocity = 100.0f;
-		m_velocityX = 0.0f;
-		m_velocityY = 0.0f;
+		
+
+		m_pBall->Reset();
+	
+		m_isGravityEnabled = false;
+		m_bSimulationStart = false;
+		m_Atime = 0.f;
+		m_gravity = 9.8f;
+		m_kickForce = 0.f;
+		m_angle = 0.f;
 	}
+
+	if(m_isGravityEnabled)
+		ImGui::Text("Gravity: ON");
+	else
+		ImGui::Text("Gravity: OFF");
+
+	ImGui::SameLine();
+
+	ImGui::Text("Time: %.2f", m_Atime);
+
+	ImGui::Text("Position: %.2f, %.2f", m_pBall->getPosition().x, m_pBall->getPosition().y);
+	ImGui::Text("Velocity: %.2f, %.2f", m_pBall->getVelocity().x, m_pBall->getVelocity().y);
+	ImGui::Text("Acceleration: %.2f, %.2f", m_pBall->getAcceleration().x, m_pBall->getAcceleration().y);
 
 
 	ImGui::PushItemWidth(80);
@@ -336,10 +386,20 @@ void StartScene::m_updateUI()
 
 	}
 
-	if (ImGui::SliderFloat("Velocity", &m_velocity, 0.0f, 200.0f, "%.1f"))
+	if (ImGui::SliderFloat("Kicking Force", &m_kickForce, 0.0f, 200.0f, "%.1f"))
 	{
 
 	}
+
+	if (ImGui::SliderFloat("Ball Mass", &m_fBallMass, 0.0f, 200.0f, "%.1f"))
+	{
+		m_pBall->SetMass(m_fBallMass);
+	}
+
+	//if (ImGui::SliderFloat("Velocity", &m_velocity, 0.0f, 200.0f, "%.1f"))
+	//{
+
+	//}
 
 	//ImGui::SameLine();
 
@@ -540,20 +600,29 @@ void StartScene::m_updateUI()
 
 void StartScene::m_move()
 {
-	// velocity components
-	m_velocityX = (m_velocity * m_PPM) * cos(m_angle * Deg2Rad); 
-	m_velocityY = (m_velocity * m_PPM) * -sin(m_angle * Deg2Rad);
-	// final velocity vector
-	glm::vec2 velocity_vector = glm::vec2(m_velocityX, m_velocityY);
+	//// velocity components
+	//m_velocityX = (m_velocity * m_PPM) * cos(m_angle * Deg2Rad); 
+	//m_velocityY = (m_velocity * m_PPM) * -sin(m_angle * Deg2Rad);
+	//// final velocity vector
+	//glm::vec2 velocity_vector = glm::vec2(m_velocityX, m_velocityY);
 
-	m_acceleration = glm::vec2(0.0f, m_gravity) * m_PPM;
+	//m_acceleration = glm::vec2(0.0f, m_gravity) * m_PPM;
 
-	// physics equation
-	m_finalPosition = m_pShip->getPosition() + 
-		(velocity_vector * m_time) +
-		((m_acceleration * 0.5f) * (m_Atime * m_Atime));
+	m_pBall->setVelocity( 
+		m_pBall->getInitialVelocity() + 
+		m_pBall->getAcceleration() * m_PPM * m_Atime);
 
-	m_Atime += m_time;
-	m_pShip->setPosition(m_finalPosition);
+	m_pBall->setPosition(
+		m_pBall->getInitialPosition() +
+		m_pBall->getVelocity() * m_PPM * m_Atime
+	);
+
+
+	//// physics equation
+	//glm::vec2 finalPosition = m_pBall->getPosition() +
+	//	(m_pBall->getVelocity() * m_Atime) +
+	//	(0.5f * m_pBall->getAcceleration() * m_Atime * m_Atime);
+	//
+	//m_pBall->setPosition(finalPosition);
 }
 

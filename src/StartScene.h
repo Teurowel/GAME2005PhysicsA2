@@ -5,6 +5,7 @@
 #include "Scene.h"
 #include "Label.h"
 #include "ship.h"
+#include "Ball.h"
 #include <cmath>
 
 class StartScene : public Scene
@@ -24,7 +25,8 @@ private:
 	/*Label* m_pStartLabel;
 	Label* m_pInstructionsLabel;*/
 
-	Ship* m_pShip;
+	//Ship* m_pShip;
+	Ball* m_pBall;
 
 	glm::vec2 m_mousePosition;
 
@@ -45,15 +47,14 @@ private:
 	float m_gravity = 9.8f;
 	float m_PPM = 5.0f; // pixels per meter - scale
 
-	glm::vec2 m_finalPosition = glm::vec2(0.0f, 0.0f);
-	float m_velocity = 100.0f;
-	float m_velocityX = 0.0f;
-	float m_velocityY = 0.0f;
-	glm::vec2 m_acceleration = glm::vec2(0.0f, 0.0f);
 	float m_time = 0.016667f; // approximately 16 ms
-	float m_Atime = 0.016667f; // accumulated time
+	float m_Atime = 0.f; // accumulated time
 
-	float m_angle = 45.0f; // the "kicking" angle
+	float m_kickForce = 0.f;
+	float m_angle = 0.f; // the "kicking" angle
+	float m_fBallMass = 0.f;
+
+	bool m_bSimulationStart = false;
 
 	// Physics Functions
 	void m_move();

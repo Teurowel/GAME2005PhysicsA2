@@ -17,6 +17,11 @@ glm::vec2 GameObject::getPosition()
 	return m_position;
 }
 
+glm::vec2 GameObject::getInitialPosition()
+{
+	return m_initialPosition;
+}
+
 glm::vec2 GameObject::getRotation()
 {
 	return m_rotation;
@@ -30,6 +35,11 @@ glm::vec2 GameObject::getScale()
 glm::vec2 GameObject::getVelocity()
 {
 	return m_velocity;
+}
+
+glm::vec2 GameObject::getInitialVelocity()
+{
+	return m_initialVelocity;
 }
 
 glm::vec2 GameObject::getAcceleration()
@@ -65,9 +75,12 @@ State GameObject::getState()
 
 void GameObject::setPosition(glm::vec2 newPosition)
 {
-
-
 	m_position = newPosition;
+}
+
+void GameObject::setInitialPosition(glm::vec2 newPosition)
+{
+	m_initialPosition = newPosition;
 }
 
 void GameObject::setWidth(int newWidth)
@@ -83,6 +96,11 @@ void GameObject::setHeight(int newHeight)
 void GameObject::setVelocity(glm::vec2 newVelocity)
 {
 	m_velocity = newVelocity;
+}
+
+void GameObject::setInitialVelocity(glm::vec2 newVelocity)
+{
+	m_initialVelocity = newVelocity;
 }
 
 void GameObject::setIsColliding(bool collision)
